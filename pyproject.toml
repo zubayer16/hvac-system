@@ -1,0 +1,61 @@
+[project]
+name = "buildingpilot"
+version = "0.1.0"
+description = "Simulation-only building energy engineering platform"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "flax>=0.10,<0.13",
+    "jax>=0.6,<0.9",
+    "joblib>=1.4,<2",
+    "kafka-python>=3,<4",
+    "optax>=0.2,<0.3",
+    "pandas>=2.2,<3",
+    "polars>=1.25,<2",
+    "prometheus-client>=0.21,<1",
+    "pyarrow>=18,<24",
+    "pydantic>=2.10,<3",
+    "pyiceberg[pyarrow,sql-sqlite]>=0.10,<0.12",
+    "scikit-learn>=1.6,<2",
+    "scipy>=1.15,<2",
+    "streamlit>=1.44,<2",
+    "uvicorn>=0.34,<1",
+]
+
+[project.scripts]
+buildingpilot = "buildingpilot.cli:main"
+buildingpilot-produce = "buildingpilot.producer:main"
+buildingpilot-ingest = "buildingpilot.worker:main"
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3,<10",
+    "ruff>=0.11,<1",
+    "mypy>=1.15,<2",
+    "httpx>=0.28,<1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["kafka: real Kafka integration test, enabled with BP_TEST_KAFKA=1"]
+
+[[tool.mypy.overrides]]
+module = ["kafka", "kafka.*", "pyarrow", "pyarrow.*", "pandas", "sklearn", "sklearn.*", "joblib", "pyspark", "pyspark.*", "optax", "scipy", "scipy.*"]
+ignore_missing_imports = true

@@ -1,0 +1,93 @@
+services:
+  object-store:
+    image: rustfs/rustfs:1.0.0
+    environment:
+      RUSTFS_ACCESS_KEY: ${BP_S3_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${BP_S3_SECRET_KEY}
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - objects:/data
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:9000/health/ready]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  bucket:
+    image: curlimages/curl:8.12.1
+    depends_on:
+      object-store:
+        condition: service_healthy
+    environment:
+      BP_S3_ACCESS_KEY: ${BP_S3_ACCESS_KEY}
+      BP_S3_SECRET_KEY: ${BP_S3_SECRET_KEY}
+    entrypoint: /bin/sh
+    command:
+      - -ec
+      - >-
+        curl -fs --aws-sigv4 aws:amz:us-east-1:s3
+        --user "$${BP_S3_ACCESS_KEY}:$${BP_S3_SECRET_KEY}"
+        --head http://object-store:9000/warehouse >/dev/null ||
+        curl -fsS --aws-sigv4 aws:amz:us-east-1:s3
+        --user "$${BP_S3_ACCESS_KEY}:$${BP_S3_SECRET_KEY}"
+        -X PUT http://object-store:9000/warehouse
+  catalog-init:
+    image: apache/iceberg-rest-fixture@sha256:db8de90b5b7693d4ac334c336f91d9bbe320d7b19f4f514d26de84cdfbcbfe8d
+    user: "0:0"
+    entrypoint: [sh, -ec]
+    command: ["chown 1000:1000 /tmp/catalog"]
+    volumes:
+      - catalog-data:/tmp/catalog
+  catalog:
+    image: apache/iceberg-rest-fixture@sha256:db8de90b5b7693d4ac334c336f91d9bbe320d7b19f4f514d26de84cdfbcbfe8d
+    depends_on:
+      catalog-init:
+        condition: service_completed_successfully
+      bucket:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8181:8181"
+    environment:
+      CATALOG_URI: jdbc:sqlite:/tmp/catalog/catalog.db?journal_mode=WAL
+      CATALOG_WAREHOUSE: s3://warehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://object-store:9000
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      AWS_ACCESS_KEY_ID: ${BP_S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${BP_S3_SECRET_KEY}
+      AWS_REGION: us-east-1
+    volumes:
+      - catalog-data:/tmp/catalog
+  batch:
+    image: buildingpilot:phase2
+    profiles: [jobs]
+    entrypoint: [python, -m, buildingpilot.batch]
+    environment: &lake-env
+      BP_DATABASE: /app/data/buildingpilot.db
+      BP_LAKE_CATALOG: rest
+      BP_CATALOG_URI: http://catalog:8181
+      BP_S3_ENDPOINT: http://object-store:9000
+      BP_S3_ACCESS_KEY: ${BP_S3_ACCESS_KEY}
+      BP_S3_SECRET_KEY: ${BP_S3_SECRET_KEY}
+    volumes:
+      - operational-data:/app/data
+  spark:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.spark
+    image: buildingpilot-spark:local
+    profiles: [jobs]
+    volumes:
+      - ./jobs:/jobs:ro
+    environment:
+      BP_CATALOG_URI: http://catalog:8181
+      BP_S3_ENDPOINT: http://object-store:9000
+      AWS_ACCESS_KEY_ID: ${BP_S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${BP_S3_SECRET_KEY}
+      AWS_REGION: us-east-1
+    command: [/opt/spark/bin/spark-submit, --master, "local[2]", /jobs/hourly.py]
+volumes:
+  objects:
+  catalog-data:

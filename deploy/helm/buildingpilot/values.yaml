@@ -1,0 +1,35 @@
+image:
+  repository: buildingpilot
+  tag: phase2
+  pullPolicy: IfNotPresent
+storage:
+  size: 10Gi
+  storageClassName: ""
+  existingClaim: ""
+kafka:
+  bootstrapServers: kafka:9092
+  topic: buildingpilot.telemetry.v1
+  faultTopic: buildingpilot.faults.v1
+  groupId: buildingpilot-ingestion-v1
+lakehouse:
+  mode: local
+  catalogUri: ""
+  s3Endpoint: ""
+  existingSecret: ""
+api:
+  serviceType: ClusterIP
+dashboard:
+  enabled: true
+simulator:
+  enabled: false
+  intervalSeconds: 300
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+jobs:
+  batchSchedule: "15 * * * *"
+  enabled: false

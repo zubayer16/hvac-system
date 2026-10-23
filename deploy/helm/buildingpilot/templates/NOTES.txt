@@ -1,0 +1,9 @@
+BuildingPilot is simulation-only. External Kafka topics must be initialized before ingestion.
+The SQLite-backed API and worker are intentionally single-replica and co-located on one node.
+Do not use a network filesystem for SQLite WAL.
+
+Access the API:
+  kubectl port-forward service/{{ .Release.Name }}-buildingpilot-api 8000:8000
+
+This chart packages applications, not Kafka, catalog, object store, Airflow or observability.
+Supply managed infrastructure and an existing secret; no credentials are rendered by default.

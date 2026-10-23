@@ -1,0 +1,9 @@
+FROM buildingpilot:phase2 AS app
+FROM apache/airflow:2.10.5-python3.12
+USER root
+COPY --from=app /app /opt/buildingpilot
+COPY dags /opt/airflow/dags
+RUN mkdir -p /app/data && chown 10001:0 /app/data
+USER airflow
+ENV BP_PIPELINE_PYTHON=/opt/buildingpilot/.venv/bin/python
+ENV AIRFLOW__CORE__LOAD_EXAMPLES=False

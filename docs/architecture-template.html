@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An offline, interactive map of BuildingPilot AI: runtime architecture, Python dependencies, source explorer and phased roadmap.">
+<title>BuildingPilot AI · Architecture explorer</title>
+<style>
+:root{--bg:#f5f6f3;--surface:#fff;--ink:#1b2927;--muted:#667571;--line:#dfe5df;--green:#246b53;--lime:#cce7b2;--nav:#172d29;--blue:#4567a2;--purple:#7b5f97;--mono:Consolas,"SFMono-Regular",monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}button,a,input{outline-offset:4px}button:focus-visible,a:focus-visible,input:focus-visible,[role=button]:focus-visible{outline:3px solid #7299e5}button{cursor:pointer}button:disabled{cursor:default}a{color:var(--green)}.skip{position:fixed;left:280px;top:-80px;background:white;padding:12px;z-index:20}.skip:focus{top:12px}.app{display:grid;grid-template-columns:254px minmax(0,1fr);min-height:100vh}.sidebar{background:var(--nav);color:#d8e5df;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}.brand{padding:27px 23px 24px;display:flex;align-items:center;gap:12px;color:#fff;font-size:18px;font-weight:650;letter-spacing:-.5px}.brand-icon{width:33px;height:33px;border-radius:9px;background:var(--lime);color:#193d2c;display:grid;place-items:center;font-size:22px}.brand small{font-size:10px;font-weight:500;color:#9fb7ae;display:block;letter-spacing:1.8px;text-transform:uppercase}.side-intro{padding:0 22px 19px;color:#9fb7ae;font-size:12px}.search-wrap{padding:0 15px 17px}.search{width:100%;border:1px solid #456057;background:#243c35;border-radius:7px;color:#fff;padding:10px 12px}.search::placeholder{color:#a8bdb4}.tree{overflow:auto;flex:1;padding:0 12px 20px;scrollbar-width:thin;scrollbar-color:#577569 #172d29}.tree-group{margin:14px 8px 7px;text-transform:uppercase;color:#93ada2;font-size:10px;letter-spacing:1.4px}.file-button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;color:#bdcfc5;background:transparent;border:0;border-radius:6px;padding:7px 9px;font:12px var(--mono)}.file-button:hover{background:#27473c;color:white}.file-button.selected{background:#cce7b2;color:#163b2c}.file-type{font:10px var(--mono);opacity:.72;min-width:20px}.side-footer{border-top:1px solid #365047;padding:17px 22px;color:#9bb7a8;font-size:11px}.side-footer strong{color:#d6e9dc;font-weight:500}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:#fafbf8;gap:12px}.breadcrumb{font-size:12px;color:var(--muted)}.breadcrumb strong{color:var(--ink);font-weight:500}.top-actions{display:flex;align-items:center;gap:15px}.status{display:inline-flex;align-items:center;gap:7px;background:#e7f0df;color:#345e39;border:1px solid #d5e3c7;padding:5px 10px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap}.dot{height:6px;width:6px;border-radius:50%;background:#59894a}.quiet-btn{border:1px solid var(--line);background:white;border-radius:6px;padding:6px 11px;color:var(--muted);font-size:12px}.content{padding:35px 36px 50px;max-width:1570px;margin:auto}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--green);font-weight:650;text-transform:uppercase}.hero{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:26px}h1{font-size:38px;font-weight:550;letter-spacing:-1.6px;line-height:1.2;margin:8px 0 11px}.hero p{margin:0;color:var(--muted);max-width:680px}.hero-stamp{width:72px;height:72px;border:1px solid #cad7cc;border-radius:50%;display:grid;place-content:center;text-align:center;transform:rotate(8deg);color:var(--green);font-size:9px;letter-spacing:1px;flex-shrink:0}.hero-stamp b{font-size:20px;line-height:1.1;letter-spacing:0}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:28px;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.stat{padding:0 22px;border-right:1px solid var(--line)}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat-number{font-size:25px;letter-spacing:-.7px;font-weight:550}.stat-label{font-size:11px;color:var(--muted);margin-top:1px}.view-nav{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:22px;overflow:auto}.view-button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 1px 13px;color:var(--muted);font-size:12px;white-space:nowrap}.view-button.active{border-color:var(--green);color:var(--green);font-weight:650}.panel{background:var(--surface);border:1px solid var(--line);border-radius:11px;overflow:hidden}.panel-head{padding:19px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line)}h2{font-size:16px;letter-spacing:-.3px;font-weight:600;margin:0}h3{font-size:14px;font-weight:600;margin:0}.panel-head p{color:var(--muted);font-size:11px;margin:3px 0 0}.segmented{padding:3px;display:flex;background:#f0f3ee;border:1px solid #e1e6dd;border-radius:6px;gap:3px;white-space:nowrap}.segmented button{border:0;background:transparent;color:var(--muted);font-size:10px;padding:5px 9px;border-radius:4px}.segmented button.active{background:white;box-shadow:0 1px 4px #1d332414;color:var(--green);font-weight:650}.map-viewport{overflow:auto;background-color:#fcfdfb;background-image:radial-gradient(#d8e1d8 .7px,transparent .7px);background-size:18px 18px}.map-viewport svg{width:100%;min-width:760px;display:block}.map-viewport svg text{font-family:inherit}.map-node{cursor:pointer}.map-node:hover .node-box,.map-node:focus .node-box{stroke:var(--green);stroke-width:2}.node-box{fill:#fff;stroke:#cfdacf;stroke-width:1}.node-sub{font:11px var(--mono)!important;fill:#6b7d72}.node-title{font-size:14px;fill:#263e31;font-weight:600}.node-caption{font-size:10px;fill:#6e8073;letter-spacing:1.1px}.edge{fill:none;stroke:#b5c9bc;stroke-width:1.6}.edge.emphasis{stroke:#4a8465;stroke-width:2}.edge-label{font-size:10px;fill:#637d6d}.graph-note{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:12px 21px;border-top:1px solid var(--line);background:#fafcf7;color:var(--muted);font-size:11px}.legend{display:flex;gap:15px;flex-wrap:wrap}.legend span{display:flex;align-items:center;gap:6px}.legend i{width:8px;height:8px;border-radius:2px;background:#79a88c}.legend .external{background:#8ea5cc}.legend .future{background:transparent;border:1px dashed #9ca69e}.support{display:flex;flex-wrap:wrap;gap:7px;align-items:center;padding:13px 21px;background:white;border-top:1px solid var(--line)}.support-label{font-size:10px;color:var(--muted);margin-right:6px}.chip{border:1px solid #dce5dc;background:#f5f8f3;color:#526e57;padding:4px 8px;border-radius:5px;font:10px var(--mono)}.chip:hover{background:#e5efdc}.explanations{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:19px}.explanation{padding:22px}.explanation p{font-size:12px;color:var(--muted);margin:9px 0 0}.sequence{margin-top:15px;display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.step{border-left:2px solid #d4e3cc;padding-left:9px;font-size:10px;color:var(--muted)}.step b{font-size:11px;color:var(--green);display:block;font-weight:600;margin-bottom:3px}.notice{font-size:11px;color:#747f73;margin-top:20px;padding-left:12px;border-left:2px solid #c6d1bd}.hidden{display:none!important}.dependency-toolbar{display:flex;align-items:center;gap:10px;padding:12px 22px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);flex-wrap:wrap}.dependency-toolbar button{font:11px var(--mono)}.file-summary{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.file-path{font:11px var(--mono);color:var(--muted);word-break:break-all}.file-title{font-size:26px;font-weight:550;margin:7px 0 10px;letter-spacing:-.7px}.file-description{font-size:13px;color:var(--muted);max-width:800px;margin:0}.tag{display:inline-block;font-size:10px;background:#eaf0e5;color:#4c7051;border-radius:5px;padding:4px 8px}.file-info{padding:24px;border-bottom:1px solid var(--line)}.file-meta{display:flex;gap:20px;flex-wrap:wrap;font:10px var(--mono);color:var(--muted);margin-top:17px}.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.detail-card{padding:19px 21px}.detail-card h3{font-size:12px;margin-bottom:11px}.muted{color:var(--muted)}.detail-card .chip{margin:0 5px 6px 0}.detail-card p{font-size:12px}.source-head{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--line)}.source-head code{font:11px var(--mono);color:var(--muted)}.code-scroll{max-height:560px;overflow:auto;background:#142620;color:#d6e0d7;padding:18px 0}.source-line{display:flex;line-height:1.8;font:11px/1.8 var(--mono);min-width:max-content;scroll-margin-top:30px}.source-line.highlight{background:#3b5745}.line-number{width:55px;padding-right:17px;color:#728b7b;text-align:right;user-select:none;flex-shrink:0}.source-line code{font:inherit;white-space:pre;padding-right:26px}.route-list{padding:4px 0}.route{display:flex;align-items:center;gap:13px;padding:9px 0;border-bottom:1px solid #edf0ea;font:11px var(--mono);word-break:break-all}.route button{background:none;border:0;color:var(--green);text-align:left;font:inherit}.method{font-weight:600;color:var(--blue);min-width:40px}.file-empty{padding:20px;color:#a7bfae;font-size:12px}.roadmap-intro{margin:0 0 20px;color:var(--muted);font-size:13px}.phase-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.phase{padding:19px 21px;border:1px solid var(--line);background:#fafbf8;border-radius:8px}.phase.future{border-style:dashed}.phase.implemented{background:#edf4e8;border-color:#cddfc0}.phase-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.phase-number{font:11px var(--mono);color:var(--muted)}.phase-status{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#73816d}.phase h3{font-size:15px;margin:0 0 8px}.phase p{font-size:12px;color:var(--muted);margin:0}.tech-list{font:10px var(--mono);color:var(--green);margin-top:13px}.phase ul{font-size:11px;color:var(--muted);padding-left:17px;margin-bottom:0}.module-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:20px}.module-table td,.module-table th{padding:12px 16px;border-bottom:1px solid var(--line);text-align:left}.module-table th{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);background:#fafcf7}.table-wrap{overflow:auto}.module-table button{font:11px var(--mono);color:var(--green);background:none;border:0;padding:0;text-align:left}.footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:28px;padding-top:15px;color:var(--muted);font-size:10px}.mobile-tree{display:none}.empty-deps{font-size:12px;color:var(--muted)}.no-js{padding:30px;background:#fff4df;color:#714f16}button svg{vertical-align:middle}.copy-status{font-size:10px;color:var(--muted)}
+@media(min-width:1650px){.content{padding-top:45px}.map-viewport svg{max-height:600px}}@media(max-width:1100px){.app{grid-template-columns:220px minmax(0,1fr)}.content{padding:26px 22px}.topbar{padding:0 22px}.hero-stamp{display:none}h1{font-size:32px}.explanations{grid-template-columns:1fr}.panel-head{align-items:flex-start}.stat{padding:0 12px}.top-actions .quiet-btn{display:none}}@media(max-width:760px){.app{display:block}.sidebar{position:relative;height:auto}.brand{padding:15px 20px}.brand small,.side-intro,.side-footer{display:none}.search-wrap{padding:0 16px 12px}.tree{display:none;max-height:300px}.sidebar.open .tree{display:block}.mobile-tree{display:block;color:#d8e5df;background:none;border:1px solid #486257;margin:0 16px 12px;border-radius:5px;padding:6px 10px}.topbar{height:57px;padding:0 17px}.breadcrumb{font-size:10px}.status{font-size:9px}.content{padding:24px 16px}.hero h1{font-size:31px}.hero p{font-size:12px}.stats{grid-template-columns:repeat(2,1fr);row-gap:15px}.stat:nth-child(3){padding-left:0}.stat:nth-child(2){border:0}.stat-number{font-size:21px}.view-nav{gap:21px}.panel-head{padding:16px;flex-direction:column;gap:11px}.map-viewport svg{min-width:850px}.details-grid,.phase-grid{grid-template-columns:1fr}.file-title{font-size:22px}.graph-note{align-items:flex-start;flex-direction:column;gap:7px}.sequence{grid-template-columns:repeat(2,1fr);row-gap:16px}.file-info{padding:18px}.file-summary{flex-direction:column}.skip{left:10px}.footer{line-height:1.8}}
+@media print{.sidebar,.top-actions,.view-nav,.segmented,.quiet-btn,.source-head button{display:none!important}.app{display:block}.content{padding:10px}.topbar{height:40px}.map-viewport svg{min-width:0}.panel{break-inside:avoid}.code-scroll{max-height:none;color:#111;background:#fafafa}.source-line{white-space:pre-wrap}.footer{margin-top:12px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to architecture</a>
+<div class="app">
+<aside class="sidebar" aria-label="Repository files">
+  <div class="brand"><div class="brand-icon" aria-hidden="true">⌁</div><div>BuildingPilot <small>AI · Architecture atlas</small></div></div>
+  <div class="side-intro">One system. Every connection.</div>
+  <div class="search-wrap"><label class="hidden" for="file-search">Search repository files</label><input class="search" id="file-search" placeholder="Find a file or symbol…" autocomplete="off" aria-label="Search files and symbols"></div>
+  <button class="mobile-tree" id="toggle-tree" aria-expanded="false">Browse repository files</button>
+  <nav class="tree" id="file-tree" aria-label="File explorer"></nav>
+  <div class="side-footer"><strong>LOCAL REFERENCE</strong><br>Embedded source · works offline<br><span id="file-count"></span></div>
+</aside>
+<div class="main-shell">
+<header class="topbar"><div class="breadcrumb">hvac-system <span aria-hidden="true"> / </span> <strong>Architecture explorer</strong></div><div class="top-actions"><span class="status"><i class="dot" aria-hidden="true"></i>Phases 1–10 implemented</span><button class="quiet-btn" id="print-page">Print view ↗</button></div></header>
+<main class="content" id="main">
+  <div class="hero"><div><div class="eyebrow">The engineering blueprint</div><h1>Inside BuildingPilot.</h1><p>Follow a sensor reading through the system, explore the source,<br class="wide-break"> and trace the complete simulation platform.</p></div><div class="hero-stamp" aria-label="Simulation only"><span>SIMULATION</span><b>100%</b><span>ONLY</span></div></div>
+  <div class="stats"><div class="stat"><div class="stat-number" id="python-count">—</div><div class="stat-label">Python files, including tests & generator</div></div><div class="stat"><div class="stat-number">03</div><div class="stat-label">Simulated commercial buildings</div></div><div class="stat"><div class="stat-number">03</div><div class="stat-label">Application entry points</div></div><div class="stat"><div class="stat-number">10 <span style="font-size:14px;color:var(--muted)">/ 10</span></div><div class="stat-label">Implementation phases complete</div></div></div>
+  <nav class="view-nav" aria-label="Architecture views"><button class="view-button active" data-view="runtime" aria-pressed="true">01 &nbsp; Runtime flow</button><button class="view-button" data-view="dependencies" aria-pressed="false">02 &nbsp; Python dependencies</button><button class="view-button" data-view="files" aria-pressed="false">03 &nbsp; Code explorer</button><button class="view-button" data-view="roadmap" aria-pressed="false">04 &nbsp; Full roadmap</button></nav>
+  <section id="view-runtime" aria-label="Current runtime architecture">
+    <div class="panel"><div class="panel-head"><div><h2 id="runtime-title">From building to browser</h2><p id="runtime-caption">Telemetry runtime; explore analytical and ML modules through the file tree</p></div><div class="segmented" aria-label="Transport mode"><button id="mode-kafka" class="active" aria-pressed="true">Kafka path</button><button id="mode-local" aria-pressed="false">Local fallback</button></div></div><div class="map-viewport" id="runtime-graph"></div><div class="support"><span class="support-label">SHARED SUPPORT</span><button class="chip" data-file="src/buildingpilot/settings.py">settings.py</button><button class="chip" data-file="src/buildingpilot/logging_config.py">logging_config.py</button><button class="chip" data-file="compose.yaml">compose.yaml</button><button class="chip" data-file="Dockerfile">Dockerfile</button></div><div class="graph-note"><div class="legend"><span><i></i>Python / local storage</span><span><i class="external"></i>External runtime</span></div><span>Arrows show runtime data flow · diagram is not live telemetry</span></div></div>
+    <div class="explanations"><article class="panel explanation"><div class="eyebrow">Delivery contract</div><h3 style="margin-top:7px">Durable first. Acknowledge second.</h3><p>The consumer writes the receipt, validated event and watermark in one SQLite transaction. Kafka offset commit follows. A crash between them causes a safe replay.</p><div class="sequence"><div class="step"><b>01 · Validate</b>Pydantic + domain</div><div class="step"><b>02 · Persist</b>Atomic transaction</div><div class="step"><b>03 · Commit</b>Next Kafka offset</div><div class="step"><b>04 · Query</b>Event-time history</div></div></article><article class="panel explanation"><div class="eyebrow">What the client sees</div><h3 style="margin-top:7px">Accepted is an explicit boundary.</h3><p>Kafka mode returns HTTP 202 after broker acknowledgment. History becomes available after the worker ingests it. Invalid broker input is durably quarantined; duplicate event IDs cannot create a second accepted event.</p><p>Local mode persists directly and reports <code>transport: local</code>.</p></article></div>
+    <div class="panel" style="margin-top:19px"><div class="panel-head"><div><h2>From history to decisions</h2><p>Analytical storage, training, serving and orchestration</p></div></div><div class="map-viewport" id="analytics-graph"></div><div class="support"><span class="support-label">PLATFORM</span><button class="chip" data-file="jobs/hourly.py">Spark job</button><button class="chip" data-file="dags/buildingpilot_lifecycle.py">Airflow DAG</button><button class="chip" data-file="src/buildingpilot/metrics.py">Prometheus</button><button class="chip" data-file="deploy/helm/buildingpilot/values.yaml">Helm</button><button class="chip" data-file="flake.nix">Nix</button></div></div>
+    <div class="notice">Synthetic data. No physical equipment control or field-validated savings. SQLite is the operational store. Iceberg, models, Streamlit and Airflow have separate implementations; deployment verification limits are documented.</div>
+  </section>
+  <section id="view-dependencies" class="hidden" aria-label="Python module imports"><div class="panel"><div class="panel-head"><div><h2>Read the code connections</h2><p>Extracted from Python AST · arrows point from importer to imported module</p></div><button class="quiet-btn" id="open-focused-file">Open focused file ↗</button></div><div class="dependency-toolbar">Focus: <strong id="dependency-focus"></strong><span>Solid green = imports · blue dashed = imported by</span></div><div class="map-viewport" id="dependency-graph"></div><div class="graph-note">Each Python file is included, even isolated package and documentation helpers. Choose a file in Code explorer, then return here to change focus.</div></div></section>
+  <section id="view-files" class="hidden" aria-label="Repository source explorer"><div id="file-detail"></div></section>
+  <section id="view-roadmap" class="hidden" aria-label="Full project architecture and roadmap"><p class="roadmap-intro">All ten phases have source implementations. This is a source snapshot, not live service health. Helm rendering does not imply a deployed cluster; Azure is documentation only.</p><div class="phase-grid" id="phase-grid"></div><div class="panel explanation" style="margin-top:18px"><h3>How the future pieces connect</h3><p>Kafka → raw / cleaned Iceberg tables → Spark aggregates and Polars features, exchanged through Arrow → fault and forecasting models → FastAPI → SciPy simulation evaluation and Streamlit. Airflow coordinates repeatable lifecycle jobs; Prometheus and Grafana observe them. Helm packages application deployment; Nix supports development; Azure is optional.</p><p>SQLite journals operational events. The Iceberg REST catalog, object storage, batch transforms and model lifecycle are separate implementations. See the operations guide for verification limits.</p></div></section>
+  <footer class="footer"><span>BUILDINGPILOT AI &nbsp; / &nbsp; ENGINEERING REFERENCE</span><span id="snapshot-time"></span></footer>
+  <noscript><div class="no-js">JavaScript is needed for the diagrams and embedded file explorer. This file does not need an internet connection.</div></noscript>
+</main>
+</div>
+</div>
+<script id="architecture-data" type="application/json">__ARCHITECTURE_DATA__</script>
+<script>
+"use strict";
+const DATA=JSON.parse(document.getElementById('architecture-data').textContent);
+const files=DATA.files, byPath=new Map(files.map(f=>[f.path,f]));
+let selected='src/buildingpilot/api.py',currentView='runtime',mode='kafka';
+const $=id=>document.getElementById(id);
+const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short=path=>path.split('/').pop();
+const p=name=>'src/buildingpilot/'+name+'.py';
+const tag=(file,label)=>`<button class="chip" data-file="${esc(file)}">${esc(label||short(file))}</button>`;
+
+function renderTree(){
+ const query=$('file-search').value.trim().toLowerCase();
+ const visible=files.filter(f=>(f.path+' '+f.description+' '+f.symbols.map(s=>s.name).join(' ')).toLowerCase().includes(query));
+ const groups=new Map();
+ for(const file of visible){const group=file.path.includes('/')?file.path.slice(0,file.path.lastIndexOf('/')):'project root';if(!groups.has(group))groups.set(group,[]);groups.get(group).push(file);}
+ $('file-tree').innerHTML=[...groups].map(([group,entries])=>`<div class="tree-group">${esc(group)}</div>`+entries.map(f=>`<button class="file-button ${selected===f.path?'selected':''}" data-file="${esc(f.path)}" aria-current="${selected===f.path?'true':'false'}"><span class="file-type">${f.name.endsWith('.py')?'py':f.name.endsWith('.md')?'md':f.name.endsWith('.html')?'ht':'◇'}</span>${esc(f.name)}</button>`).join('')).join('')||'<p class="file-empty">No matching files or symbols.</p>';
+ $('file-count').textContent=files.length+' source, config & documentation files';
+}
+
+function switchView(view){
+ currentView=view;
+ for(const name of ['runtime','dependencies','files','roadmap'])$('view-'+name).classList.toggle('hidden',name!==view);
+ document.querySelectorAll('[data-view]').forEach(button=>{button.classList.toggle('active',button.dataset.view===view);button.setAttribute('aria-pressed',String(button.dataset.view===view));});
+ if(view==='files')renderFile();
+ if(view==='dependencies')renderDependencies();
+}
+
+function selectFile(path){
+ if(!byPath.has(path))return;
+ selected=path;renderTree();switchView('files');
+ document.querySelector('.sidebar').classList.remove('open');$('toggle-tree').setAttribute('aria-expanded','false');
+ $('file-detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+}
+
+function sourceLine(line){
+ document.querySelectorAll('.source-line.highlight').forEach(el=>el.classList.remove('highlight'));
+ const element=$('source-line-'+line);if(element){element.classList.add('highlight');element.scrollIntoView({behavior:'smooth',block:'center'});}
+}
+
+function renderFile(){
+ const f=byPath.get(selected),dependents=files.filter(other=>other.imports.includes(f.path));
+ const deps=f.imports.length?f.imports.map(path=>tag(path)).join(''):'<span class="empty-deps">No direct BuildingPilot imports.</span>';
+ const users=dependents.length?dependents.map(other=>tag(other.path)).join(''):'<span class="empty-deps">No direct Python importers in this snapshot.</span>';
+ const symbols=f.symbols.map(s=>`<button class="chip" data-line="${s.line}" title="${esc(s.kind)} at line ${s.line}">${esc(s.name)} <span style="opacity:.6">:${s.line}</span></button>`).join('');
+ const routes=f.routes.length?`<div class="panel detail-card" style="margin-bottom:18px"><h3>HTTP operations · extracted from decorators</h3><div class="route-list">${f.routes.map(r=>`<div class="route"><span class="method">${esc(r.method)}</span><button data-line="${r.line}">${esc(r.path)}</button></div>`).join('')}</div></div>`:'';
+ $('file-detail').innerHTML=`<div class="panel"><div class="file-info"><div class="file-summary"><div><div class="file-path">${esc(f.path)}</div><h2 class="file-title">${esc(f.name)}</h2><p class="file-description">${esc(f.description)}</p></div><span class="tag">${esc(f.category)}</span></div><div class="file-meta"><span>${f.lines} lines</span><span>${f.imports.length} project imports</span><span>${dependents.length} project importers</span><span>Embedded snapshot</span></div></div></div><div class="details-grid"><div class="panel detail-card"><h3>Imports from the project</h3>${deps}</div><div class="panel detail-card"><h3>Imported by</h3>${users}</div></div>${routes}<div class="panel"><div class="source-head"><code>${esc(f.path)}</code><button class="quiet-btn" id="copy-source">Copy source</button></div><div class="code-scroll" tabindex="0" aria-label="Source code for ${esc(f.name)}">${f.source.split('\n').map((line,i)=>`<div class="source-line" id="source-line-${i+1}"><span class="line-number" aria-hidden="true">${i+1}</span><code>${esc(line)||' '}</code></div>`).join('')}</div></div>${symbols?`<div class="panel detail-card" style="margin-top:18px"><h3>Defined classes and functions · click to jump</h3>${symbols}</div>`:''}`;
+ $('copy-source').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(f.source);$('copy-source').textContent='Copied';}catch{const range=document.createRange();range.selectNodeContents(document.querySelector('.code-scroll'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);$('copy-source').textContent='Selected · press Ctrl+C';}});
+}
+
+function svgStart(label,height=505){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 ${height}" role="group" aria-label="${esc(label)}"><defs><marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#5f8c70"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6785b1"/></marker></defs>`;}
+function node(x,y,title,subtitle,file,kind='python',caption=''){
+ const external=kind==='external',fill=external?'#edf2fb':'#fff',stroke=external?'#bbcae2':'#cfdacf';
+ return `<g class="map-node" ${file?`data-file="${esc(file)}" role="button" tabindex="0" aria-label="Open ${esc(file)}"`:''}><title>${esc(file||title)}</title><rect class="node-box" x="${x}" y="${y}" width="210" height="75" rx="8" style="fill:${fill};stroke:${stroke}"/><rect x="${x+13}" y="${y+17}" width="4" height="40" rx="2" fill="${external?'#7899c9':'#83ad85'}"/><text class="node-title" x="${x+29}" y="${y+31}">${esc(title)}</text><text class="node-sub" x="${x+29}" y="${y+53}">${esc(subtitle)}</text>${caption?`<text class="node-caption" x="${x+4}" y="${y-13}">${esc(caption)}</text>`:''}</g>`;
+}
+function edge(path,label='',x=0,y=0,emphasis=false){return `<path class="edge ${emphasis?'emphasis':''}" d="${path}" marker-end="url(#arrow-green)"/>${label?`<text class="edge-label" x="${x}" y="${y}">${esc(label)}</text>`:''}`;}
+
+function renderRuntime(){
+ const local=mode==='local';
+ $('mode-kafka').classList.toggle('active',!local);$('mode-local').classList.toggle('active',local);
+ $('mode-kafka').setAttribute('aria-pressed',String(!local));$('mode-local').setAttribute('aria-pressed',String(local));
+ $('runtime-title').textContent=local?'The explicit local development path':'From building to browser';
+ $('runtime-caption').textContent=local?'HTTP validation → direct persistence · Kafka and consumer are bypassed':'Telemetry runtime; explore analytical and ML modules through the file tree';
+ let graph=svgStart(local?'Local fallback architecture':'Current runtime architecture',local?350:505);
+ if(local){
+  graph+=edge('M 250 130 H 285','validated JSON',255,111,true)+edge('M 495 130 H 535','direct call',500,111,true)+edge('M 745 130 H 785','transaction',748,111,true);
+  graph+=edge('M 890 167 V 238 H 390 V 167','latest / history queries',520,257);
+  graph+=node(35,92,'HTTP client','Pydantic boundary',p('contracts'),'python','INPUT');
+  graph+=node(285,92,'FastAPI','api.py',p('api'),'python','SERVE');
+  graph+=node(535,92,'LocalPublisher','broker.py',p('broker'),'python','DIRECT ADAPTER');
+  graph+=node(785,92,'Ingestion + SQLite','ingestion.py / storage.py',p('ingestion'),'python','PERSIST');
+  graph+='<text class="edge-label" x="35" y="310">BP_TRANSPORT=local · no Kafka delivery is claimed · POST /telemetry reports delivery: persisted</text>';
+ }else{
+  graph+=edge('M 245 83 H 285')+edge('M 495 83 H 535')+edge('M 745 83 H 785');
+  graph+=edge('M 390 120 V 205','generate()',402,169,true)+edge('M 495 243 H 535','keyed',499,226,true)+edge('M 745 243 H 785','poll',750,226,true);
+  graph+=edge('M 890 280 V 320 H 640 V 365','raw broker record',677,308,true);
+  graph+=edge('M 745 403 H 785','atomic write',737,456,true);
+  graph+=edge('M 495 403 H 515 V 300 H 640 V 280','POST /telemetry',521,289);
+  graph+=edge('M 890 440 V 475 H 390 V 440','GET latest / history · event time, not arrival order',482,491);
+  graph+=edge('M 245 403 H 285','validate',247,387);
+  graph+=node(35,45,'Building + Telemetry','domain.py',p('domain'),'python','DOMAIN CORE');
+  graph+=node(285,45,'Thermal simulator','simulator.py',p('simulator'),'python','SYNTHETIC OBSERVATIONS');
+  graph+=node(535,45,'JSONL command','cli.py',p('cli'),'python','ORIGINAL PHASE 1 PATH');
+  graph+=node(785,45,'Telemetry files','data/*.jsonl',null,'external');
+  graph+=node(285,205,'Kafka producer','producer.py',p('producer'),'python','CONTINUOUS / FINITE');
+  graph+=node(535,205,'Kafka + adapter','broker.py',p('broker'),'external','BUFFER / ACK');
+  graph+=node(785,205,'Consumer process','worker.py',p('worker'),'python','MANUAL COMMITS');
+  graph+=node(35,365,'Boundary contracts','contracts.py',p('contracts'),'python','VALIDATE');
+  graph+=node(285,365,'FastAPI','api.py',p('api'),'python','SERVE / PUBLISH');
+  graph+=node(535,365,'Ingestion service','ingestion.py',p('ingestion'),'python','ACCEPT / QUARANTINE');
+  graph+=node(785,365,'SQLite WAL store','storage.py',p('storage'),'python','RECEIPTS + EVENTS');
+ }
+ $('runtime-graph').innerHTML=graph+'</svg>';
+}
+
+function renderAnalytics(){
+ let graph=svgStart('Analytical and model architecture',535);
+ graph+=edge('M 245 83 H 400')+edge('M 610 83 H 765');
+ graph+=edge('M 870 120 V 170 H 140 V 225');
+ graph+=edge('M 870 170 H 505 V 225');
+ graph+=edge('M 610 263 H 765');
+ graph+=edge('M 140 300 V 355 H 505 V 405');
+ graph+=edge('M 505 300 V 405');
+ graph+=edge('M 870 300 V 355 H 610 V 443');
+ graph+=edge('M 610 443 H 765');
+ graph+=edge('M 140 405 V 190 H 505 V 120','scheduled tasks',155,185);
+ graph+=node(35,45,'Journal export','batch.py',p('batch'));
+ graph+=node(400,45,'Iceberg snapshots','lakehouse.py',p('lakehouse'));
+ graph+=node(765,45,'Causal features','features.py',p('features'));
+ graph+=node(35,225,'Fault classifiers','faults.py',p('faults'));
+ graph+=node(400,225,'Load forecasts','forecasting.py',p('forecasting'));
+ graph+=node(765,225,'Simulated controls','optimization.py',p('optimization'));
+ graph+=node(35,405,'Lifecycle + gates','pipeline.py',p('pipeline'));
+ graph+=node(400,405,'Model serving','serving.py',p('serving'));
+ graph+=node(765,405,'Streamlit','dashboard.py',p('dashboard'));
+ $('analytics-graph').innerHTML=graph+'</svg>';
+}
+
+function renderDependencies(){
+ const modules=files.filter(f=>f.name.endsWith('.py'));
+ const positions=new Map(modules.map((f,i)=>[f.path,{x:28+(i%4)*255,y:40+Math.floor(i/4)*112}]));
+ $('dependency-focus').textContent=selected;
+ let graph=svgStart('Python import relationships, focused on '+selected,Math.ceil(modules.length/4)*112+35);
+ for(const file of modules){for(const target of file.imports){const a=positions.get(file.path),b=positions.get(target);if(!a||!b)continue;
+  const direct=file.path===selected,reverse=target===selected,opacity=direct||reverse?1:.09;
+  const dx=b.x-a.x,dy=b.y-a.y,pad=1/Math.max(Math.abs(dx)/112,Math.abs(dy)/42);
+  const ax=a.x+105+dx*pad,ay=a.y+37.5+dy*pad,bx=b.x+105-dx*pad,by=b.y+37.5-dy*pad;
+  graph+=`<path d="M ${ax} ${ay} Q ${(ax+bx)/2+45} ${(ay+by)/2-35} ${bx} ${by}" fill="none" stroke="${reverse?'#6785b1':'#518568'}" stroke-width="${direct||reverse?2:1}" opacity="${opacity}" ${reverse?'stroke-dasharray="5 4"':''} marker-end="url(#arrow-${reverse?'blue':'green'})"/>`;
+ }}
+ const focus=byPath.get(selected),usedBy=modules.filter(f=>f.imports.includes(selected)).map(f=>f.path);
+ for(const file of modules){const pos=positions.get(file.path),related=file.path===selected||focus.imports.includes(file.path)||usedBy.includes(file.path);
+  graph+=`<g opacity="${related?1:.45}">`+node(pos.x,pos.y,file.name,file.path.startsWith('tests/')?'tests / '+file.symbols.length+' symbols':file.category,file.path,file.path===selected?'external':'python')+'</g>';
+ }
+ $('dependency-graph').innerHTML=graph+'</svg>';
+}
+
+const phases=[
+ {n:1,title:'A reproducible foundation',tech:'Python · uv · Ruff · mypy · pytest',description:'Typed domain, three seeded buildings, thermal dynamics and a JSONL CLI.',checks:['Synthetic provenance and UTC','Physics and reproducibility tests'],done:true},
+ {n:2,title:'A connected local platform',tech:'FastAPI · Pydantic · Kafka · SQLite · Docker',description:'Stream telemetry through a durable ingestion journal and query it through HTTP.',checks:['Manual commits and safe replay','Late data, quarantine and deduplication'],done:true},
+ {n:3,title:'The analytical lakehouse',tech:'Iceberg · Spark · PyArrow · Polars · pandas',description:'Raw, cleaned, hourly, feature, training, prediction and recommendation tables; shared catalog and compatible object storage.',checks:['Real cross-engine read/write tests','Backfills and table maintenance']},
+ {n:4,title:'HVAC fault detection',tech:'scikit-learn · optional research CSV import',description:'Compare dummy, Extra Trees, Random Forest and gradient boosting classifiers with valid fault labels.',checks:['Chronological / building-aware splits','Precision, recall, F1, ROC-AUC when valid']},
+ {n:5,title:'Energy forecasting',tech:'scikit-learn · JAX · Flax · Optax',description:'Compare persistence, regression and a CPU-first neural model using lagged load and environmental features.',checks:['Walk-forward validation','MAE / RMSE and honest baseline comparison']},
+ {n:6,title:'Simulated setpoint optimization',tech:'SciPy · forecast estimates · thermal rollout',description:'Balance estimated energy cost and comfort under equipment bounds and maximum setpoint changes.',checks:['Identical scenarios versus baseline','Feasibility and comfort violations']},
+ {n:7,title:'Monitoring and explanations',tech:'Streamlit · FastAPI',description:'Building selection, history, quality, alerts, forecast performance and proposed setpoints from real backend responses.',checks:['Model explanations vs engineering assumptions','Estimated effects labeled as simulation']},
+ {n:8,title:'Repeatable model operations',tech:'Airflow · model artifacts',description:'Retryable ingestion, quality, features, training, evaluation, promotion, retraining and batch inference.',checks:['Idempotent partition jobs','Quality gates, promotion and rollback']},
+ {n:9,title:'Observe the whole system',tech:'Prometheus · Grafana',description:'API latency, lag, ingestion quality, forecast error, drift, alerts, feasibility and simulated comfort.',checks:['Bounded metric cardinality','Scrape and alert verification']},
+ {n:10,title:'Reproducible deployment',tech:'Kubernetes · Helm · Nix · optional Azure',description:'Package application deployment and development environments. Document cloud options without provisioning paid resources.',checks:['Chart lint/render and smoke checks','Calibration, safety and human approval before real control']}
+];
+phases.forEach(phase => phase.done = true);
+function renderRoadmap(){$('phase-grid').innerHTML=phases.map(phase=>`<article class="phase ${phase.done?'implemented':'future'}"><div class="phase-top"><span class="phase-number">PHASE ${String(phase.n).padStart(2,'0')}</span><span class="phase-status">${phase.done?'Implemented':'Planned · not started'}</span></div><h3>${esc(phase.title)}</h3><p>${esc(phase.description)}</p><div class="tech-list">${esc(phase.tech)}</div><ul>${phase.checks.map(check=>`<li>${esc(check)}</li>`).join('')}</ul></article>`).join('');}
+
+document.addEventListener('click',event=>{
+ const target=event.target.closest('[data-file],[data-view],[data-line]');if(!target)return;
+ if(target.dataset.file)selectFile(target.dataset.file);
+ else if(target.dataset.view)switchView(target.dataset.view);
+ else if(target.dataset.line)sourceLine(Number(target.dataset.line));
+});
+document.addEventListener('keydown',event=>{
+ if((event.key==='Enter'||event.key===' ')&&event.target.matches('g[data-file]')){event.preventDefault();selectFile(event.target.dataset.file);}
+ if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();$('file-search').focus();}
+ if(event.key==='Escape'&&document.activeElement===$('file-search')){$('file-search').value='';renderTree();}
+});
+$('file-search').addEventListener('input',renderTree);
+$('mode-kafka').addEventListener('click',()=>{mode='kafka';renderRuntime();});
+$('mode-local').addEventListener('click',()=>{mode='local';renderRuntime();});
+$('open-focused-file').addEventListener('click',()=>selectFile(selected));
+$('print-page').addEventListener('click',()=>window.print());
+$('toggle-tree').addEventListener('click',()=>{const opened=document.querySelector('.sidebar').classList.toggle('open');$('toggle-tree').setAttribute('aria-expanded',String(opened));});
+$('python-count').textContent=String(files.filter(f=>f.name.endsWith('.py')).length).padStart(2,'0');
+$('snapshot-time').textContent='Source snapshot: '+DATA.generated+' · refresh with python scripts/build_architecture.py';
+renderTree();renderRuntime();renderAnalytics();renderRoadmap();renderFile();
+</script>
+</body>
+</html>

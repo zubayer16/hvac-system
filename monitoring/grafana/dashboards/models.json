@@ -1,0 +1,160 @@
+{
+  "uid": "buildingpilot-models",
+  "title": "BuildingPilot \u00b7 models",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Inference latency",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(bp_inference_seconds_sum[5m]) / clamp_min(rate(bp_inference_seconds_count[5m]), 0.001)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Forecast validation MAE (kW)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "bp_forecast_validation_mae_kw",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Matched forecast error (kW)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "bp_forecast_observed_mae_kw",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Feature distance indicator",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "bp_feature_drift_indicator",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Fault alert rate",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(bp_fault_alerts_total[5m])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Optimization feasibility",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum by (feasible) (rate(bp_optimization_total[5m]))",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Simulated comfort violations",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "buildingpilot-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(bp_comfort_violations_total[5m])",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

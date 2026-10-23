@@ -1,0 +1,37 @@
+groups:
+  - name: buildingpilot
+    rules:
+      - alert: BuildingPilotServiceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: A BuildingPilot scrape target is down
+      - alert: BuildingPilotAPIErrors
+        expr: sum(rate(bp_http_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(bp_http_requests_total[5m])), 0.001) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: API errors exceed five percent
+      - alert: BuildingPilotConsumerLag
+        expr: bp_kafka_consumer_lag > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Consumer has more than one thousand uncommitted records
+      - alert: BuildingPilotFeatureShift
+        expr: bp_feature_drift_indicator > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Features differ substantially from the training reference
+      - alert: BuildingPilotPipelineFailure
+        expr: increase(bp_pipeline_failures_total[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: A lifecycle task failed

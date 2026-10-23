@@ -1,0 +1,47 @@
+services:
+  dashboard:
+    image: buildingpilot:phase2
+    command: [streamlit, run, /app/src/buildingpilot/dashboard.py, --server.address=0.0.0.0, --server.port=8501, --browser.gatherUsageStats=false]
+    environment:
+      BP_API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+  airflow:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.airflow
+    image: buildingpilot-airflow:local
+    profiles: [orchestration]
+    command: standalone
+    user: "10001:0"
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      BP_DATABASE: /app/data/buildingpilot.db
+      BP_MODEL_ROOT: /app/data/models
+      BP_PIPELINE_ROOT: /app/data/runs
+      BP_LAKE_ROOT: /app/data/lakehouse
+      AIRFLOW_HOME: /app/data/airflow
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - operational-data:/app/data
+      - ./dags:/opt/airflow/dags:ro
+  api:
+    environment:
+      BP_MODEL_ROOT: /app/data/models
+  demo:
+    image: buildingpilot:phase2
+    profiles: [jobs]
+    command: [python, -m, buildingpilot.demo]
+    environment:
+      BP_DATABASE: /app/data/demo.db
+      BP_MODEL_ROOT: /app/data/models
+      BP_PIPELINE_ROOT: /app/data/demo-runs
+      BP_LAKE_ROOT: /app/data/demo-lake
+    volumes:
+      - operational-data:/app/data

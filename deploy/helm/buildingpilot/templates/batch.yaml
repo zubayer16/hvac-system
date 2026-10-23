@@ -1,0 +1,48 @@
+{{- if .Values.jobs.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-buildingpilot-batch
+spec:
+  schedule: {{ .Values.jobs.batchSchedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: {{ .Release.Name }}-buildingpilot
+                      component: api
+                  topologyKey: kubernetes.io/hostname
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            fsGroup: 10001
+          containers:
+            - name: batch
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              command: [python, -m, buildingpilot.batch]
+              envFrom:
+                - configMapRef:
+                    name: {{ .Release.Name }}-buildingpilot-config
+                {{- if .Values.lakehouse.existingSecret }}
+                - secretRef:
+                    name: {{ .Values.lakehouse.existingSecret }}
+                {{- end }}
+              resources:
+{{ toYaml .Values.resources | indent 16 }}
+              volumeMounts:
+                - name: data
+                  mountPath: /app/data
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: {{ default (printf "%s-buildingpilot-data" .Release.Name) .Values.storage.existingClaim }}
+{{- end }}

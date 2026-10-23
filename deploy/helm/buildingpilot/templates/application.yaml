@@ -1,0 +1,142 @@
+{{- $name := printf "%s-buildingpilot" .Release.Name -}}
+{{- $claim := default (printf "%s-data" $name) .Values.storage.existingClaim -}}
+{{- if not .Values.storage.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $claim }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- if .Values.storage.storageClassName }}
+  storageClassName: {{ .Values.storage.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+---
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-config
+data:
+  BP_DATABASE: /app/data/buildingpilot.db
+  BP_MODEL_ROOT: /app/data/models
+  BP_LAKE_ROOT: /app/data/lakehouse
+  BP_PIPELINE_ROOT: /app/data/runs
+  BP_TRANSPORT: kafka
+  BP_KAFKA_BOOTSTRAP_SERVERS: {{ .Values.kafka.bootstrapServers | quote }}
+  BP_KAFKA_TOPIC: {{ .Values.kafka.topic | quote }}
+  BP_KAFKA_FAULT_TOPIC: {{ .Values.kafka.faultTopic | quote }}
+  BP_KAFKA_GROUP_ID: {{ .Values.kafka.groupId | quote }}
+  BP_LAKE_CATALOG: {{ .Values.lakehouse.mode | quote }}
+  BP_CATALOG_URI: {{ .Values.lakehouse.catalogUri | quote }}
+  BP_S3_ENDPOINT: {{ .Values.lakehouse.s3Endpoint | quote }}
+---
+{{- range $role := list "api" "ingestion" "simulator" "dashboard" }}
+{{- if or (eq $role "api") (eq $role "ingestion") (and (eq $role "simulator") $.Values.simulator.enabled) (and (eq $role "dashboard") $.Values.dashboard.enabled) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}-{{ $role }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ $name }}
+      component: {{ $role }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        component: {{ $role }}
+      annotations:
+        prometheus.io/scrape: {{ or (eq $role "api") (eq $role "ingestion") | quote }}
+        prometheus.io/port: {{ ternary "8000" "9101" (eq $role "api") | quote }}
+    spec:
+      automountServiceAccountToken: false
+      {{- if ne $role "api" }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: {{ $name }}
+                  component: api
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: {{ $role }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          {{- if eq $role "api" }}
+          command: [uvicorn, buildingpilot.api:app, --host, "0.0.0.0", --port, "8000"]
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet: {path: /health/live, port: 8000}
+            initialDelaySeconds: 20
+          readinessProbe:
+            httpGet: {path: /health/ready, port: 8000}
+            initialDelaySeconds: 10
+          {{- else if eq $role "ingestion" }}
+          command: [buildingpilot-ingest]
+          ports:
+            - containerPort: 9101
+          {{- else if eq $role "simulator" }}
+          command: [buildingpilot-produce, --continuous, --interval-seconds, {{ $.Values.simulator.intervalSeconds | quote }}]
+          {{- else }}
+          command: [streamlit, run, /app/src/buildingpilot/dashboard.py, --server.address=0.0.0.0, --server.port=8501, --browser.gatherUsageStats=false]
+          ports:
+            - containerPort: 8501
+          env:
+            - name: BP_API_URL
+              value: http://{{ $name }}-api:8000
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ $name }}-config
+            {{- if $.Values.lakehouse.existingSecret }}
+            - secretRef:
+                name: {{ $.Values.lakehouse.existingSecret }}
+            {{- end }}
+          resources:
+{{ toYaml $.Values.resources | indent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ $claim }}
+---
+{{- if or (eq $role "api") (eq $role "dashboard") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-{{ $role }}
+spec:
+  type: {{ ternary $.Values.api.serviceType "ClusterIP" (eq $role "api") }}
+  selector:
+    app: {{ $name }}
+    component: {{ $role }}
+  ports:
+    - port: {{ ternary 8000 8501 (eq $role "api") }}
+      targetPort: {{ ternary 8000 8501 (eq $role "api") }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

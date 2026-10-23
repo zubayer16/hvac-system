@@ -1,0 +1,90 @@
+name: buildingpilot
+
+x-app: &app
+  image: buildingpilot:phase2
+  init: true
+  restart: unless-stopped
+  environment: &environment
+    BP_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    BP_DATABASE: /app/data/buildingpilot.db
+    BP_TRANSPORT: kafka
+    BP_ALLOWED_LATENESS_SECONDS: ${BP_ALLOWED_LATENESS_SECONDS:-900}
+  volumes:
+    - operational-data:/app/data
+
+services:
+  kafka:
+    image: apache/kafka:4.1.2
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9092:9092"
+    environment:
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:29092,HOST://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,HOST://127.0.0.1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "kafka:29092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  topics:
+    image: apache/kafka:4.1.2
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-ec"]
+    command:
+      - |
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic buildingpilot.telemetry.v1 --partitions 3 --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic buildingpilot.faults.v1 --partitions 3 --replication-factor 1
+
+  api:
+    <<: *app
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      topics:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=5)"]
+      interval: 10s
+      timeout: 8s
+      retries: 6
+
+  ingestion:
+    <<: *app
+    command: ["buildingpilot-ingest"]
+    depends_on:
+      topics:
+        condition: service_completed_successfully
+
+  simulator:
+    <<: *app
+    command: ["buildingpilot-produce", "--continuous", "--interval-seconds", "5"]
+    volumes: []
+    depends_on:
+      api:
+        condition: service_healthy
+      ingestion:
+        condition: service_started
+
+volumes:
+  kafka-data:
+  operational-data:
